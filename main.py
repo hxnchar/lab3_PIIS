@@ -38,8 +38,8 @@ def evaluationFunction(board: chess.Board(), turnToMove: int):
 
 def negaMax(board: chess.Board(), depth: int, turnToMove: int) -> tuple:
     if depth == 0:
-        return evaluationFunction(board, turnToMove), None
-    maxScore = -999
+        return evaluationFunction(board, turnToMove), 0
+    maxScore = float("-inf")
     bestMove = ''
     for legalMove in board.legal_moves:
         score = -(negaMax(board, depth - 1, -turnToMove)[0])
@@ -51,18 +51,68 @@ def negaMax(board: chess.Board(), depth: int, turnToMove: int) -> tuple:
     return maxScore, bestMove
 
 
+def negaScout(depth: int, whoToMove: int, alpha: int, beta: int) -> tuple:
+    if depth == 0:
+        return evaluationFunction(whoToMove), 0
+
+    bestMove = None
+    for legalMove in board.legal_moves:
+        score = -(negaScout(depth - 1, -whoToMove, -beta, -alpha)[0])
+
+        if score > alpha and score < beta and depth > 1:
+            score2 = -(negaScout(depth - 1, -whoToMove, -beta, -score))[0]
+            score = max(score, score2)
+
+        if score == 0:
+            score = random.random()
+        if score > alpha:
+            alpha = score
+            bestMove = legalMove
+
+        if alpha >= beta:
+            return alpha, bestMove
+        beta = alpha + 1
+    return alpha, bestMove
+
+
 board = chess.Board()
 depth, turnToMove = 5, -1
+
+algo = input(
+    "Enter 1 if you want to play against NegaMax and 2 if you want to play against NegaScout: ")
 
 while not board.is_checkmate():
     print("Game state:\n")
     print(board)
     move = input("Input your move: ")
     board.push_san(move)
-    negaMove = negaMax(board, depth, turnToMove)[1]
+    if algo == "1":
+        negaMove = negaMax(board, depth, turnToMove)[1]
+    elif algo == "2":
+        negaMove = negaScout(board, depth, turnToMove)[1]
     board.push(negaMove)
 
 
-# len(board.pieces(1, chess.BLACK))
-#  board.is_legal()
-# board.push_san("g1h3")
+"""
+def PVC(depth: int, whoToMove: int, alpha: int, beta: int) -> tuple:
+    if depth == 0:
+        return evaluationFunction(whoToMove), None
+    bestMove = None
+    for legalMove in board.legal_moves:
+        score = -(PVC(depth - 1, -whoToMove, -beta, -alpha)[0])
+        #  NegaScout: re-iterate
+        if (score > alpha) and (score < beta):
+            score = -(PVC(depth - 1, -whoToMove, -beta, -score))[0]
+        #  custom addition for when the board is full and 0 is returned from evaluationFunction
+        if score == 0:
+            score = random.random()
+        if score > alpha:
+            alpha = score
+            bestMove = legalMove
+        #  NegaScout: cut-off obsolete nodes
+        if alpha >= beta:
+            return alpha, bestMove
+        beta = alpha + 1
+    return alpha, bestMove
+
+"""
