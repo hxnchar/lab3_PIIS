@@ -75,6 +75,28 @@ def negaScout(depth: int, whoToMove: int, alpha: int, beta: int) -> tuple:
     return alpha, bestMove
 
 
+def PVC(depth: int, whoToMove: int, alpha: int, beta: int) -> tuple:
+    if depth == 0:
+        return evaluationFunction(whoToMove), None
+    bestMove = None
+    for legalMove in board.legal_moves:
+        score = -(PVC(depth - 1, -whoToMove, -beta, -alpha)[0])
+
+        if (score > alpha) and (score < beta):
+            score = -(PVC(depth - 1, -whoToMove, -beta, -score))[0]
+
+        if score == 0:
+            score = random.random()
+        if score > alpha:
+            alpha = score
+            bestMove = legalMove
+
+        if alpha >= beta:
+            return alpha, bestMove
+        beta = alpha + 1
+    return alpha, bestMove
+
+
 board = chess.Board()
 depth, turnToMove = 5, -1
 
@@ -91,28 +113,3 @@ while not board.is_checkmate():
     elif algo == "2":
         negaMove = negaScout(board, depth, turnToMove)[1]
     board.push(negaMove)
-
-
-"""
-def PVC(depth: int, whoToMove: int, alpha: int, beta: int) -> tuple:
-    if depth == 0:
-        return evaluationFunction(whoToMove), None
-    bestMove = None
-    for legalMove in board.legal_moves:
-        score = -(PVC(depth - 1, -whoToMove, -beta, -alpha)[0])
-        #  NegaScout: re-iterate
-        if (score > alpha) and (score < beta):
-            score = -(PVC(depth - 1, -whoToMove, -beta, -score))[0]
-        #  custom addition for when the board is full and 0 is returned from evaluationFunction
-        if score == 0:
-            score = random.random()
-        if score > alpha:
-            alpha = score
-            bestMove = legalMove
-        #  NegaScout: cut-off obsolete nodes
-        if alpha >= beta:
-            return alpha, bestMove
-        beta = alpha + 1
-    return alpha, bestMove
-
-"""
