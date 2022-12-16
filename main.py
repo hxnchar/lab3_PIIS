@@ -101,7 +101,7 @@ board = chess.Board()
 depth, turnToMove = 5, -1
 
 algo = input(
-    "Enter 1 if you want to play against NegaMax and 2 if you want to play against NegaScout: ")
+    "Enter 1 if you want to play against NegaMax and 2 if you want to play against NegaScout or 3 if you want PVC: ")
 
 while not board.is_checkmate():
     print("Game state:\n")
@@ -112,4 +112,6 @@ while not board.is_checkmate():
         negaMove = negaMax(board, depth, turnToMove)[1]
     elif algo == "2":
         negaMove = negaScout(board, depth, turnToMove)[1]
+    else:
+        negaMove = PVC(board, depth, turnToMove)[1]
     board.push(negaMove)
